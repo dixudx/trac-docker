@@ -9,7 +9,7 @@ ENV DB_LINK sqlite:db/trac.db
 EXPOSE 8123
 
 RUN apt-get update && apt-get install -y trac python-babel \
-   libapache2-mod-wsgi python-pip
+   libapache2-mod-wsgi python-pip && apt-get -y clean
 RUN pip install --upgrade Babel Trac
 RUN mkdir -p $TRAC_DIR
 RUN trac-admin $TRAC_DIR initenv $TRAC_PROJECT_NAME $DB_LINK

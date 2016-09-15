@@ -19,7 +19,7 @@ development process and policies.
 
     ```ssh
     $ git clone https://github.com/dixudx/trac-docker
-    $ docker build -t trac-docker/
+    $ docker build -t trac ./
     ```
 
 * just pull it from Dockerhub
