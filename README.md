@@ -19,6 +19,7 @@ development process and policies.
 
     ```ssh
     $ git clone https://github.com/dixudx/trac-docker
+    $ cd trac-docker
     $ docker build -t trac ./
     ```
 
@@ -99,6 +100,6 @@ starting a container.
 $ docker run -d -p 8123:8123 -v ./trac.conf:/etc/apache2/sites-available/trac.conf --name my_trac stephenhsu/trac
 ```
 
-## Reference
+# Reference
 
 * [Trac Official Doc](https://trac.edgewall.org/wiki/TracGuide)
