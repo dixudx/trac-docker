@@ -13,7 +13,8 @@ RUN apt-get update && apt-get install -y trac python-babel \
 RUN pip install --upgrade Babel Trac
 RUN mkdir -p $TRAC_DIR
 RUN trac-admin $TRAC_DIR initenv $TRAC_PROJECT_NAME $DB_LINK
-RUN trac-admin $TRAC_DIR deploy $TRAC_DIR
+RUN trac-admin $TRAC_DIR deploy /tmp/deploy
+RUN mv /tmp/deploy/* $TRAC_DIR
 RUN htpasswd -b -c $TRAC_DIR/.htpasswd $TRAC_ADMIN_NAME $TRAC_ADMIN_PASSWD
 RUN trac-admin $TRAC_DIR permission add $TRAC_ADMIN_NAME TRAC_ADMIN
 RUN chown -R www-data: $TRAC_DIR
