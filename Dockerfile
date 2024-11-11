@@ -1,16 +1,15 @@
-FROM ubuntu:xenial
-MAINTAINER = Di Xu <stephenhsu90@gmail.com>
-ENV TRAC_ADMIN_NAME trac_admin
-ENV TRAC_ADMIN_PASSWD passw0rd
-ENV TRAC_PROJECT_NAME trac_project
-ENV TRAC_DIR /var/local/trac
-ENV TRAC_INI $TRAC_DIR/conf/trac.ini
-ENV DB_LINK sqlite:db/trac.db
+FROM ubuntu:noble
+ENV TRAC_ADMIN_NAME="trac_admin"
+ENV TRAC_ADMIN_PASSWD="passw0rd"
+ENV TRAC_PROJECT_NAME="trac_project"
+ENV TRAC_DIR="/var/local/trac"
+ENV TRAC_INI="$TRAC_DIR/conf/trac.ini"
+ENV DB_LINK="sqlite:db/trac.db"
 EXPOSE 8123
 
-RUN apt-get update && apt-get install -y trac python-babel \
-   libapache2-mod-wsgi python-pip && apt-get -y clean
-RUN pip install --upgrade Babel Trac
+RUN apt-get update && apt-get install -y apache2 libapache2-mod-wsgi-py3 pipx && apt-get -y clean
+RUN pipx install Babel Trac && pipx ensurepath
+ENV PATH="$PATH:/root/.local/bin"
 RUN mkdir -p $TRAC_DIR
 RUN trac-admin $TRAC_DIR initenv $TRAC_PROJECT_NAME $DB_LINK
 RUN trac-admin $TRAC_DIR deploy /tmp/deploy
