@@ -1,0 +1,34 @@
+services:
+  trac:
+    build: .
+    # image: stephenhsu/trac  # alternative: pull from Docker Hub
+    environment:
+      TRAC_ADMIN_PASSWD: ${TRAC_ADMIN_PASSWD:?set TRAC_ADMIN_PASSWD on first run}
+      TRAC_ADMIN_NAME: ${TRAC_ADMIN_NAME:-trac_admin}
+      TRAC_PROJECT_NAME: ${TRAC_PROJECT_NAME:-trac_project}
+    volumes:
+      - trac-data:/var/local/trac
+    restart: unless-stopped
+    expose:
+      - "8123"
+
+  caddy:
+    image: caddy:2-alpine
+    environment:
+      DOMAIN: ${DOMAIN:-localhost}
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    restart: unless-stopped
+    depends_on:
+      - trac
+
+volumes:
+  trac-data:
+  caddy-data:
+  caddy-config:

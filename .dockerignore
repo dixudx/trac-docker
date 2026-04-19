@@ -1,1 +1,9 @@
+.git
+.gitignore
+.dockerignore
+.omc
+LICENSE
 README.md
+docker-compose.yml
+Caddyfile
+trac.ini.sample
