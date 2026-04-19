@@ -1,5 +1,0 @@
-# Set DOMAIN=<hostname> for Let's Encrypt; unset uses Caddy's internal CA at localhost.
-{$DOMAIN:localhost} {
-	reverse_proxy trac:8123
-	encode zstd gzip
-}

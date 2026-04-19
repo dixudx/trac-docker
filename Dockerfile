@@ -34,7 +34,8 @@ COPY entrypoint.sh /usr/local/bin/trac-entrypoint
 RUN chmod 0755 /usr/local/bin/trac-entrypoint
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=15s \
-    CMD wget -qO- --tries=1 http://127.0.0.1:8123/ >/dev/null || exit 1
+    CMD wget -S -O /dev/null --tries=1 http://127.0.0.1:8123/ 2>&1 | \
+        grep -qE 'HTTP/[0-9.]+ (200|401)'
 
 ENTRYPOINT ["/sbin/tini", "--", "/usr/local/bin/trac-entrypoint"]
 CMD ["httpd", "-D", "FOREGROUND"]

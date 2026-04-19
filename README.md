@@ -97,26 +97,25 @@ Most of below
         before creating the database.
 
 
-## TLS with Caddy (recommended)
+## docker compose
 
-Basic Auth over plain HTTP exposes credentials on the wire. Front the
-container with [Caddy](https://caddyserver.com/) for automatic TLS. A
-ready-to-use `docker-compose.yml` + `Caddyfile` are included:
+A minimal `docker-compose.yml` is included. Copy `.env.example` to `.env`,
+set `TRAC_ADMIN_PASSWD`, then bring the stack up:
 
 ```
-$ TRAC_ADMIN_PASSWD=change-me DOMAIN=trac.example.com docker compose up -d
+$ cp .env.example .env
+$ $EDITOR .env
+$ docker compose up -d
 ```
 
-- `DOMAIN` unset → Caddy serves `https://localhost` with its internal CA
-  (useful for local testing; import Caddy's root cert to silence browser
-  warnings).
-- `DOMAIN=<public-hostname>` → Caddy provisions a Let's Encrypt cert
-  automatically. Make sure ports 80/443 are reachable from the internet and
-  the DNS A/AAAA record points at the host.
+Data persists under `./data/` on the host (bind mount).
 
-Caddy terminates TLS and proxies to the Trac container over the internal
-Docker network; Apache still enforces Basic Auth so Trac's `$REMOTE_USER`
-handling is unchanged.
+## TLS
+
+The container serves plain HTTP on `8123` with HTTP Basic Auth. Basic Auth
+credentials over plain HTTP are exposed on the wire — put a TLS-terminating
+reverse proxy (nginx, Caddy, Traefik, cloud load balancer) in front before
+exposing this to an untrusted network.
 
 ## Custom Apache config
 
