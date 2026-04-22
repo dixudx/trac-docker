@@ -4,8 +4,8 @@
 [![](https://images.microbadger.com/badges/image/stephenhsu/trac.svg)](https://hub.docker.com/r/stephenhsu/trac/)
 [![Docker Hub](http://img.shields.io/docker/pulls/stephenhsu/trac.svg)](https://hub.docker.com/r/stephenhsu/trac/)
 
-This repo is used to host a bunldle to create a docker container (based on
-Ubuntu Xenial) running [Trac](http://trac.edgewall.org),
+This repo builds a Docker container (based on Alpine Linux) running
+[Trac](http://trac.edgewall.org),
 which is an enhanced wiki and issue tracking system for software development
 projects. Trac uses a minimalistic approach to web-based software project
 management. It helps developers write great software while staying out of
@@ -34,14 +34,20 @@ development process and policies.
 
 ## Quick Start
 
-Just run
-
 ```
-$ docker run -d -p 8123:8123 --name my_trac stephenhsu/trac
+$ docker run -d -p 8123:8123 \
+    -e TRAC_ADMIN_PASSWD=change-me \
+    -v trac-data:/var/local/trac \
+    --name my_trac stephenhsu/trac
 ```
 
-After several seconds, you can visit the web page at
-<http://localhost:8123>
+`TRAC_ADMIN_PASSWD` is **required on first run** — the container bootstraps the
+Trac environment, deploys static assets, and creates the admin user on first
+start. On subsequent starts the env is reused from the volume and the password
+env var is ignored. Mount a named volume at `/var/local/trac` to persist data.
+
+After several seconds, visit <http://localhost:8123> and log in as
+`trac_admin` / `<TRAC_ADMIN_PASSWD>`.
 
 ## Environment Variables Explanations
 
@@ -51,9 +57,11 @@ Most of below
 
     the admin username of Trac
 
-* `TRAC_ADMIN_PASSWD` (default is `passw0rd`):
+* `TRAC_ADMIN_PASSWD` (**required on first run**, no default):
 
-    the admin password of Trac
+    the admin password of Trac. Only consumed when `.htpasswd` does not yet
+    exist in `$TRAC_DIR`; ignored on subsequent starts. Pass via `-e` on first
+    `docker run` and omit thereafter.
 
 * `TRAC_PROJECT_NAME` (default is `trac_project`):
 
@@ -89,15 +97,37 @@ Most of below
         before creating the database.
 
 
-## Wants More Secure
+## docker compose
 
-This container image is powered by [Apache Web Server](https://httpd.apache.org/).
-You can make your own customizations (such as adding TLS etc.) in
-`./trac.conf` and map to `/etc/apache2/sites-available/trac.conf` when
-starting a container.
+A minimal `docker-compose.yml` is included. Copy `.env.example` to `.env`,
+set `TRAC_ADMIN_PASSWD`, then bring the stack up:
 
 ```
-$ docker run -d -p 8123:8123 -v ./trac.conf:/etc/apache2/sites-available/trac.conf --name my_trac stephenhsu/trac
+$ cp .env.example .env
+$ $EDITOR .env
+$ docker compose up -d
+```
+
+Data persists under `./data/` on the host (bind mount).
+
+## TLS
+
+The container serves plain HTTP on `8123` with HTTP Basic Auth. Basic Auth
+credentials over plain HTTP are exposed on the wire — put a TLS-terminating
+reverse proxy (nginx, Caddy, Traefik, cloud load balancer) in front before
+exposing this to an untrusted network.
+
+## Custom Apache config
+
+You can still customize Apache directly by mapping your own template over
+`/etc/apache2/trac.conf.template` — the entrypoint renders it with the
+current `TRAC_DIR` and `AUTH_NAME`:
+
+```
+$ docker run -d -p 8123:8123 \
+    -e TRAC_ADMIN_PASSWD=change-me \
+    -v ./trac.conf:/etc/apache2/trac.conf.template:ro \
+    --name my_trac stephenhsu/trac
 ```
 
 # Reference

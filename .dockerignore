@@ -1,1 +1,10 @@
+.git
+.gitignore
+.dockerignore
+LICENSE
 README.md
+docker-compose.yml
+trac.ini.sample
+/data/
+.env
+.env.example

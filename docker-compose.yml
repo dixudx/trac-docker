@@ -1,0 +1,10 @@
+services:
+  trac:
+    build: .
+    # image: stephenhsu/trac  # alternative: pull from Docker Hub
+    env_file: .env
+    ports:
+      - "8123:8123"
+    volumes:
+      - ./data:/var/local/trac
+    restart: unless-stopped
